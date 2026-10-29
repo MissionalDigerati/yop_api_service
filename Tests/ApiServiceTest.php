@@ -75,17 +75,32 @@ class ApiServiceTest extends TestCase
      */
     public function setUp(): void
     {
-        $httpService = $this->getMockBuilder(
-            'YearOfPrayer\ApiService\Contracts\HttpServiceInterface'
-        )
-            ->onlyMethods(['post', 'get', 'put', 'setBaseUrl'])
-            ->getMock();
-        $this->consumerService = $this->getMockBuilder('YearOfPrayer\ApiService\ConsumerService')
-            ->setConstructorArgs([$httpService])
-            ->getMock();
-        $this->prayerService = $this->getMockBuilder('YearOfPrayer\ApiService\PrayerService')
-            ->setConstructorArgs([$httpService])
-            ->getMock();
+        $this->consumerService = $this->createStub(ConsumerService::class);
+        $this->prayerService = $this->createStub(PrayerService::class);
+        $this->apiService = new ApiService($this->consumerService, $this->prayerService);
+    }
+
+    /**
+     * Replace the consumerService stub with a mock so expectations can be set
+     *
+     * @return void
+     * @access private
+     */
+    private function mockConsumerService(): void
+    {
+        $this->consumerService = $this->createMock(ConsumerService::class);
+        $this->apiService = new ApiService($this->consumerService, $this->prayerService);
+    }
+
+    /**
+     * Replace the prayerService stub with a mock so expectations can be set
+     *
+     * @return void
+     * @access private
+     */
+    private function mockPrayerService(): void
+    {
+        $this->prayerService = $this->createMock(PrayerService::class);
         $this->apiService = new ApiService($this->consumerService, $this->prayerService);
     }
 
@@ -97,6 +112,7 @@ class ApiServiceTest extends TestCase
      */
     public function testRegisterConsumerShouldRegisterANewConsumer(): void
     {
+        $this->mockConsumerService();
         $data = $this->consumerFactory;
         $expectedApiKey = 'frogger123@';
         $data['api_key'] = $expectedApiKey;
@@ -125,6 +141,7 @@ class ApiServiceTest extends TestCase
      */
     public function testRegisterConsumerShouldThrowAnErrorIfTheDataIsInvalid(): void
     {
+        $this->mockConsumerService();
         $this->expectException(\InvalidArgumentException::class);
         $this->consumerService->expects($this->once())
                                 ->method('validate')
@@ -141,6 +158,7 @@ class ApiServiceTest extends TestCase
      */
     public function testUpdateConsumerShouldUpdateTheConsumerData(): void
     {
+        $this->mockConsumerService();
         $apiKey = 'Y654$3#rre';
         $this->consumerService->expects($this->once())
                                 ->method('update')
@@ -196,6 +214,7 @@ class ApiServiceTest extends TestCase
      */
     public function testPrayingShouldIndicateAPrayer(): void
     {
+        $this->mockPrayerService();
         $prayerId = '01-11';
         $apiKey = 'myApiKey23';
         $prayingData = ['id'    =>  $prayerId];
@@ -221,6 +240,7 @@ class ApiServiceTest extends TestCase
      */
     public function testPrayerStatsAsConsumerShouldReturnValidStats(): void
     {
+        $this->mockPrayerService();
         $prayerId = '02-29';
         $apiKey = 'FunnyKeySee';
         $prayingData = ['id'    =>  $prayerId];
@@ -254,6 +274,7 @@ class ApiServiceTest extends TestCase
      */
     public function testPrayingShouldThrowErrorIfApiKeyIsEmpty(): void
     {
+        $this->mockPrayerService();
         $this->expectException(\InvalidArgumentException::class);
         $this->prayerService->expects($this->never())
                                 ->method('validate');
@@ -269,6 +290,7 @@ class ApiServiceTest extends TestCase
      */
     public function testPrayingShouldThrowErrorIfPrayerIdIsEmpty(): void
     {
+        $this->mockPrayerService();
         $this->expectException(\InvalidArgumentException::class);
         $this->prayerService->expects($this->once())
                                 ->method('validate')
@@ -286,6 +308,7 @@ class ApiServiceTest extends TestCase
      */
     public function testPrayingShouldThrowErrorIfPrayerIdIsMalformed(): void
     {
+        $this->mockPrayerService();
         $this->expectException(\InvalidArgumentException::class);
         $this->prayerService->expects($this->once())
                                 ->method('validate')
@@ -303,6 +326,7 @@ class ApiServiceTest extends TestCase
      */
     public function testPrayerStatsShouldThrowErrorIfApiKeyIsEmpty(): void
     {
+        $this->mockPrayerService();
         $this->expectException(\InvalidArgumentException::class);
         $this->prayerService->expects($this->never())
                                 ->method('validate');
@@ -318,6 +342,7 @@ class ApiServiceTest extends TestCase
      */
     public function testPrayerStatsShouldThrowErrorIfKeyTypeIsEmpty(): void
     {
+        $this->mockPrayerService();
         $this->expectException(\InvalidArgumentException::class);
         $this->prayerService->expects($this->never())
                                 ->method('validate');
@@ -333,6 +358,7 @@ class ApiServiceTest extends TestCase
      */
     public function testPrayerStatsShouldThrowErrorIfKeyTypeIsWrong(): void
     {
+        $this->mockPrayerService();
         $this->expectException(\InvalidArgumentException::class);
         $this->prayerService->expects($this->never())
                                 ->method('validate');
@@ -348,6 +374,7 @@ class ApiServiceTest extends TestCase
      */
     public function testPrayerStatsShouldThrowErrorIfPrayerIdIsEmpty(): void
     {
+        $this->mockPrayerService();
         $this->expectException(\InvalidArgumentException::class);
         $this->prayerService->expects($this->once())
                                 ->method('validate')
@@ -365,6 +392,7 @@ class ApiServiceTest extends TestCase
      */
     public function testPrayerStatsShouldThrowErrorIfPrayerIdIsMalformed(): void
     {
+        $this->mockPrayerService();
         $this->expectException(\InvalidArgumentException::class);
         $this->prayerService->expects($this->once())
                                 ->method('validate')

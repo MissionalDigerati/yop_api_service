@@ -2,7 +2,7 @@
     "name": "yearofprayer/apiservice",
     "description": "This package provides a common PHP service for engaging your instance of the Year of Prayer API.  It handles the communication between your application and the API.",
     "type": "library",
-    "license": "GPL",
+    "license": "GPL-3.0-or-later",
     "version": "2.0.0",
     "scripts": {
       "lint": "phpcs --standard=PSR12 src/",
@@ -16,7 +16,7 @@
         }
     ],
     "require": {
-        "php": "^8.0",
+        "php": "^8.2",
         "guzzlehttp/guzzle": "^8.3"
     },
     "require-dev": {

@@ -58,5 +58,5 @@ interface HttpServiceInterface
      * @param  string   $url    The url for all requests
      * @access public
      */
-    public function setBaseUrl(string $url);
+    public function setBaseUrl(string $url): void;
 }

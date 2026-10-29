@@ -22,6 +22,7 @@
 namespace YearOfPrayer\ApiService\Tests;
 
 use YearOfPrayer\ApiService\ConsumerService;
+use YearOfPrayer\ApiService\Contracts\HttpServiceInterface;
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 
@@ -69,11 +70,19 @@ class ConsumerServiceTest extends TestCase
      */
     public function setUp(): void
     {
-        $this->httpService = $this->getMockBuilder(
-            'YearOfPrayer\ApiService\Contracts\HttpServiceInterface'
-        )
-                                ->onlyMethods(['post', 'get', 'put', 'setBaseUrl'])
-                                ->getMock();
+        $this->httpService = $this->createStub(HttpServiceInterface::class);
+        $this->consumerService = new ConsumerService($this->httpService);
+    }
+
+    /**
+     * Replace the httpService stub with a mock so expectations can be set
+     *
+     * @return void
+     * @access private
+     */
+    private function mockHttpService(): void
+    {
+        $this->httpService = $this->createMock(HttpServiceInterface::class);
         $this->consumerService = new ConsumerService($this->httpService);
     }
 
@@ -110,6 +119,7 @@ class ConsumerServiceTest extends TestCase
      */
     public function testRegisterShouldRegisterANewConsumer(): void
     {
+        $this->mockHttpService();
         $data = $this->consumerFactory;
         $data['api_key'] = 'AWizardOfAKey123';
         $responseReturnData = [
@@ -137,6 +147,7 @@ class ConsumerServiceTest extends TestCase
      */
     public function testRegisterShouldThrowErrorIfStatusIsNot200(): void
     {
+        $this->mockHttpService();
         $this->expectException(\Exception::class);
         $this->httpService->expects($this->once())
                             ->method('post')
@@ -153,6 +164,7 @@ class ConsumerServiceTest extends TestCase
      */
     public function testUpdateShouldUpdateTheConsumer(): void
     {
+        $this->mockHttpService();
         $apiKey = 'myUniqueKey123';
         $data = $this->consumerFactory;
         $data['push_at'] = '21:00:00';
@@ -182,6 +194,7 @@ class ConsumerServiceTest extends TestCase
      */
     public function testUpdateShouldReturnFalseIfNotSuccessful(): void
     {
+        $this->mockHttpService();
         $apiKey = 'myNewUniqueKey789';
         $responseReturnData = [
             'status'    =>  'error',

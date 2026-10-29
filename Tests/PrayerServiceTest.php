@@ -50,11 +50,19 @@ class PrayerServiceTest extends TestCase
      */
     public function setUp() : void
     {
-        $this->httpService = $this->getMockBuilder(
-            'YearOfPrayer\ApiService\Contracts\HttpServiceInterface'
-        )
-                                ->onlyMethods(['post', 'get', 'put', 'setBaseUrl'])
-                                ->getMock();
+        $this->httpService = $this->createStub(HttpServiceInterface::class);
+        $this->prayerService = new PrayerService($this->httpService);
+    }
+
+    /**
+     * Replace the httpService stub with a mock so expectations can be set
+     *
+     * @return void
+     * @access private
+     */
+    private function mockHttpService(): void
+    {
+        $this->httpService = $this->createMock(HttpServiceInterface::class);
         $this->prayerService = new PrayerService($this->httpService);
     }
 
@@ -126,6 +134,7 @@ class PrayerServiceTest extends TestCase
      */
     public function testPrayingShouldReturnTrueIfItIsASuccess(): void
     {
+        $this->mockHttpService();
         $apiKey = '123456';
         $data = ['id'   =>  '10-10'];
         $responseReturnData = [
@@ -153,6 +162,7 @@ class PrayerServiceTest extends TestCase
      */
     public function testPrayingShouldThrowErrorIfStatusIsNot200(): void
     {
+        $this->mockHttpService();
         $this->expectException(\Exception::class);
         $apiKey = 'JHG$32331';
         $data = ['id'   =>  '11-15'];
@@ -171,6 +181,7 @@ class PrayerServiceTest extends TestCase
      */
     public function testPrayerStatsAsConsumerShouldReturnDataIfItIsASuccess(): void
     {
+        $this->mockHttpService();
         $apiKey = 'MonKeyTree';
         $expected = [
             'prayer_request_id'     =>  '12-28',
@@ -212,6 +223,7 @@ class PrayerServiceTest extends TestCase
      */
     public function testPrayerStatsAsClientShouldReturnDataIfItIsASuccess(): void
     {
+        $this->mockHttpService();
         $clientId = 'my-client-id';
         $expected = [
             'prayer_request_id'     =>  '11-10',
@@ -250,6 +262,7 @@ class PrayerServiceTest extends TestCase
      */
     public function testPrayerStatsShouldThrowAnErrorIfStatusIsNot200(): void
     {
+        $this->mockHttpService();
         $this->expectException(\Exception::class);
         $apiKey = 'FritosPintos';
         $this->httpService->expects($this->once())

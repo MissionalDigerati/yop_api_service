@@ -41,7 +41,7 @@ class HttpService implements HttpServiceInterface
      * @access public
      */
     public function __construct(
-        private $baseUrl = ''
+        private string $baseUrl = ''
     ) {
         $this->httpClient = new Client();
     }
@@ -52,7 +52,7 @@ class HttpService implements HttpServiceInterface
      * @param  string   $url    The url for all requests
      * @access public
      */
-    public function setBaseUrl(string $url)
+    public function setBaseUrl(string $url): void
     {
         $this->baseUrl = $url;
     }
@@ -106,7 +106,7 @@ class HttpService implements HttpServiceInterface
      * @param  string   $url        The location of the resource
      * @param  array    $data       The data to pass to the resource
      * @return array                An array of the response
-     * @throws \Exception       If the status is not 200 or 201
+     * @throws \Exception       If the status is not 200 or 201, or the response is not valid JSON
      * @access private
      */
     private function makeRequest(string $method, string $url, array $data): array
@@ -122,7 +122,13 @@ class HttpService implements HttpServiceInterface
         $response = $this->httpClient->request($method, $url, $data);
         $status = $response->getStatusCode();
         if (in_array($status, [200, 201])) {
-            return json_decode($response->getBody()->getContents(), true);
+            $decoded = json_decode($response->getBody()->getContents(), true);
+            if (!is_array($decoded)) {
+                throw new \Exception(
+                    "Unable to parse the response from {$url}. Expected a JSON object or array."
+                );
+            }
+            return $decoded;
         } else {
             throw new \Exception(
                 "Unable to reach the {$url}. Received a status code of {$status}."

@@ -3,7 +3,7 @@
     "description": "This package provides a common PHP service for engaging your instance of the Year of Prayer API.  It handles the communication between your application and the API.",
     "type": "library",
     "license": "GPL-3.0-or-later",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "scripts": {
       "lint": "phpcs --standard=PSR12 src/",
       "test": "phpunit ./Tests/",
